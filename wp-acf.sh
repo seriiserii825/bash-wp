@@ -1,5 +1,12 @@
 #!/bin/bash
 
+has_wp=$(which wp)
+if [ -z "$has_wp" ]; then
+  curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  chmod +x wp-cli.phar
+  sudo mv wp-cli.phar /usr/local/bin/wp
+fi
+
 if [[ ! -f front-page.php ]]; then
   echo "${tmagenta}Go to wp theme folder${treset}"
   exit 1
@@ -30,7 +37,7 @@ cd app/public/wp-content/plugins
 
 # check if exists directory advanced-custom-fields-wpcli
 if [[ ! -d advanced-custom-fields-wpcli ]]; then
-echo "${tgreen}Installing ACF plugin${treset}"
+  echo "${tgreen}Installing ACF plugin${treset}"
   git clone https://github.com/hoppinger/advanced-custom-fields-wpcli.git
   echo "${tgreen}Activating ACF plugin${treset}"
   wp plugin activate advanced-custom-fields-wpcli
