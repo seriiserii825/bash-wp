@@ -2,11 +2,11 @@
 
 function newGroup(){
   local id="$(openssl rand -base64 12)"
-  local name=$1
+  local name=$(echo $1 | tr ' ' '_')
   local type=$2
   local file_path=$3
   local slug=$(echo $name | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-  cat $file_path | jq '.[0].fields[.[0].fields| length] += {
+  local result=$(cat $file_path | jq '.[0].fields[.[0].fields| length] += {
   "key": "field_'${id}'",
   "label": "'${name}'",
   "name": "'${slug}'",
@@ -26,7 +26,8 @@ function newGroup(){
 "xml": "xml_samplesheet_2017_01_07_run_09.xml",
 "status": "OKKK",
 "message": "metadata loaded into iRODS successfullyyyyy"
-}'
+}')
+echo $result > $file_path
 }
 
 export -f newGroup
@@ -35,19 +36,28 @@ function removeGroup(){
   local file_path=$1
   local labels=()
 
-  for i in "$(jq -r '.[0].fields[]' $file_path)"; do
-    # local key=$(echo $i | jq -r .key)
-    local label=$(echo $i | jq -r .label)
-    labels+=($label)
-  done
+# read each item in the JSON array to an item in the Bash array
+readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
 
-  select elem in "${labels[@]}"; do 
-    [[ $elem ]] || continue
-    local key=$(jq -r '.[0].fields[] | select(.label == "'${elem}'") | .key' $file_path)
-    echo $key
-    break
-  done
-  # key=$1
-  # file_path=$2
-  # local result=$(cat $file_path | jq 'del(.[0].fields['${key}'])')
+# iterate through the Bash array
+for item in "${my_array[@]}"; do
+  echo "========= start"
+  local label=$(jq --raw-output '.label' <<< "$item")
+  local type=$(jq --raw-output '.type' <<< "$item")
+  if [[ $type == "group" ]]; then
+    labels+=($label)
+  fi
+done
+
+select elem in "${labels[@]}"; do 
+  [[ $elem ]] || continue
+  local key=$(jq -r '.[0].fields[] | select(.label == "'${elem}'") | .key' $file_path)
+  local result=$(cat $file_path | jq 'del(.[0].fields[] | select(.key == "'${key}'"))')
+  echo $result > $file_path
+  bat $file_path
+  exit 0
+done
+key=$1
+file_path=$2
+local result=$(cat $file_path | jq 'del(.[0].fields['${key}'])')
 }

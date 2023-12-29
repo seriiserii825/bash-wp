@@ -8,17 +8,13 @@ select action in "Add" "Remove" "Edit" "Exit"
 do
   case $action in
     Add)
-      select type in "Group" "Tab" "Field"
+      select type in "Group" "Field"
       do
         case $type in
           Group)
             read -p "Enter the name of the group: " group_name
-            newGroup $group_name "group" $file_path
-            exit 0
-            ;;
-          Tab)
-            read -p "Enter the name of the tab: " tab_name
-            newGroup $tab_name "tab" $file_path
+            newGroup "$group_name" "tab" $file_path
+            newGroup "$group_name" "group" $file_path
             exit 0
             ;;
           Field)
