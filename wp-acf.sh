@@ -14,16 +14,14 @@ fi
 
 theme_url=$(pwd)
 
-clipboard=$(xclip -o -selection clipboard)
-
-# check if clipboard has string
-if [[ $clipboard != *"mysqld.sock"* ]]; then
-  echo "${tmagenta}mysqld.sock not found in clipboard${treset}"
-  echo "${tgreen}Go to localwp app in tab Database and copy the socket path${treset}"
+if [[ ! -f .mysql_sock ]]
+then
+  echo "${tmagenta}Go to localwp app in tab Database and copy the socket path${treset}"
+  echo "${tgreen}Create a file .mysql_sock and paste the path${treset}"
   exit 1
 fi
 
-echo "${tgreen}mysqld.sock found in clipboard${treset}"
+cat .mysql_sock | xclip -selection clipboard
 
 cd ../../../../../
 
@@ -50,16 +48,19 @@ echo "${tgreen}Go to theme folder${treset}"
 
 cd "$theme_url"
 
-echo "${tgreen}Added filter to functions.php at the end${treset}"
 
+if ! grep -Fq "acfwpcli_fieldgroup_paths" functions.php
+then
+  echo "${tgreen}Added filter to functions.php at the end${treset}"
 
-cat <<TEST >> "functions.php"
+  cat <<TEST >> "functions.php"
 add_filter( 'acfwpcli_fieldgroup_paths', 'add_plugin_path' );
 function add_plugin_path( \$paths ) {
     \$paths['my_plugin'] = get_template_directory() . '/acf/';
     return \$paths;
   }
 TEST
+fi
 
 bat functions.php
 
