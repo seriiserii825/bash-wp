@@ -13,7 +13,6 @@ touch $output_path
 echo "$(xclip -o -selection clipboard)" > $acf_path
 
 bat $acf_path
-# >$output_path
 
 echo "\$$field_group_name = get_field('$field_group_name');" > $output_path
 while read -r line; do

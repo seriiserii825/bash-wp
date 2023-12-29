@@ -20,8 +20,7 @@ do
             newGroup "$group_name" "group" $file_path
             ;;
           Field)
-            read -p "Enter the name of the field: " field_name
-            newGroup $field_name "field" $file_path
+            addSubField $file_path
             ;;
         esac
       done
