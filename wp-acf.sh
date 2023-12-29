@@ -28,8 +28,6 @@ curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli
 
 cd app/public/wp-content/plugins
 
-echo "$(pwd)"
-
 # check if exists directory advanced-custom-fields-wpcli
 if [[ ! -d advanced-custom-fields-wpcli ]]; then
 echo "${tgreen}Installing ACF plugin${treset}"
@@ -43,7 +41,7 @@ fi
 
 echo "${tgreen}Go to theme folder${treset}"
 
-cd $theme_url
+cd "$theme_url"
 
 echo "${tgreen}Added filter to functions.php at the end${treset}"
 
