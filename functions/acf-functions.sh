@@ -295,9 +295,9 @@ function editSubField() {
       echo "${tmagenta}Leave empty if you don't want to change the name of the field${treset}"
       read -p "Enter the name of the field: " field_input
       if [[ $field_input == '' ]]; then
-        break
+        local field_label=$field
       else
-        field_label=$(echo $field_input | tr ' ' '_')
+        local field_label=$(echo $field_input | tr ' ' '_')
       fi
       local field_name=$(echo $field_label | tr ' ' '_')
       local key_field=$(jq -r '.[0].fields['${group_index}'].sub_fields[] | select(.label == "'${field}'") | .key' $file_path)
