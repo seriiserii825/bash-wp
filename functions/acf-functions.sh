@@ -38,6 +38,31 @@ function showSubFields(){
   done
 }
 
+function editGroup(){
+  local file_path=$1
+  local labels=()
+  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
+
+  for item in "${my_array[@]}"; do
+    local label=$(jq --raw-output '.label' <<< "$item")
+    local type=$(jq --raw-output '.type' <<< "$item")
+    if [ $type == "group" ]; then
+      labels+=($label)
+    fi
+  done
+
+  COLUMNS=1
+  select elem in "${labels[@]}"; do 
+    [[ $elem ]] || continue
+    local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
+    local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
+    read -p "Enter the name of the group: " group_name
+    local result=$(cat $file_path | jq '.[0].fields['${group_index}'].label = "'${group_name}'"')
+    echo $result > $file_path
+    showFields $file_path
+  done
+}
+
 function newGroup(){
   local id="$(openssl rand -base64 12)"
   local name=$(echo $1 | tr ' ' '_')
@@ -154,3 +179,4 @@ function addSubField(){
 echo $result > $file_path
 done
 }
+

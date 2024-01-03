@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# https://salferrarello.com/wp-cli-local-by-flywheel-without-ssh/
 has_wp=$(which wp)
 if [ -z "$has_wp" ]; then
   curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -27,9 +27,12 @@ cd ../../../../../
 
 echo "$(pwd)"
 
-rm wp-cli.local*
+if [[ ! -f .localwp-cli.yml ]]
+then
+  rm wp-cli.local*
+  curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli-localwp-setup  && bash wpcli-localwp-setup && rm -rf ./wpcli-localwp-setup
+fi
 
-curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli-localwp-setup  && bash wpcli-localwp-setup && rm -rf ./wpcli-localwp-setup
 
 cd app/public/wp-content/plugins
 
@@ -62,7 +65,12 @@ function add_plugin_path( \$paths ) {
 TEST
 fi
 
-bat functions.php
-
 wp acf
+if [ $? -eq 0 ]; then
+    echo OK
+else
+  read -p "${tmagenta}Get mysql sock path from localwp app and paste here: ${treset}" mysql_sock
+  echo $mysql_sock > "$theme_url/.mysql_sock"
+  echo "${tgreen}Success!${treset}"
+fi
 

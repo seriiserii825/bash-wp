@@ -17,7 +17,7 @@ if [[ "$file_path" != *"json"* ]]; then
 fi
 
 COLUMNS=1
-select action in "ShowGroups" "ShowSubfields" "AddGroup" "AddField" "Remove" "Edit" "Save" "Exit"
+select action in "ShowGroups" "ShowSubfields" "EditGroup" "AddGroup" "AddField" "Remove" "Edit" "Save" "Exit"
 do
   case $action in
     ShowGroups)
@@ -25,6 +25,9 @@ do
       ;;
     ShowSubfields)
       showSubFields $file_path
+      ;;
+    EditGroup)
+      editGroup $file_path
       ;;
     AddGroup)
       read -p "Enter the name of the group: " group_name
@@ -42,7 +45,7 @@ do
       echo "Edit"
       ;;
     Save)
-      wp acf import --all
+      which wp
       break
       ;;
     Exit)
