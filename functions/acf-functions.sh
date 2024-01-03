@@ -314,3 +314,32 @@ function editSubField() {
 }
 
 
+function removeField(){
+  local file_path=$1
+  local labels=($(getGroupsLabels $file_path))
+  echo "${tblue}Select group:${treset}"
+  COLUMNS=1
+  select elem in "${labels[@]}"; do 
+    [[ $elem ]] || continue
+    local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
+    local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
+    local sub_fields=$(jq --compact-output '.[0].fields['${group_index}'].sub_fields[]' $file_path)
+    local sub_fields_labels=()
+    for item in "${sub_fields[@]}"; do
+      local sub_label=$(jq --raw-output '.label' <<< "$item")
+      sub_fields_labels+=($sub_label)
+    done
+    echo "${tyellow}Select field:${treset}"
+    COLUMNS=1
+    select field in "${sub_fields_labels[@]}"; do 
+      [[ $field ]] || continue
+      local key_field=$(jq -r '.[0].fields['${group_index}'].sub_fields[] | select(.label == "'${field}'") | .key' $file_path)
+      local field_index=$(jq '.[0].fields['${group_index}'].sub_fields | map(.key) | index("'${key_field}'")' $file_path)
+      local result=$(cat $file_path | jq 'del(.[0].fields['${group_index}'].sub_fields['${field_index}'])')
+      echo $result > $file_path
+      wpImport
+      break
+    done
+    break
+  done
+}

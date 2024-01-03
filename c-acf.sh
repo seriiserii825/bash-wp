@@ -44,7 +44,7 @@ do
       addSubField $file_path
       ;;
     "${tmagenta}RemoveField${treset}")
-      echo "remove field"
+      removeField $file_path
       ;;
     "${tmagenta}Exit${treset}")
       echo "Exit"
