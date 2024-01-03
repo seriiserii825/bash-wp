@@ -17,14 +17,11 @@ if [[ "$file_path" != *"json"* ]]; then
 fi
 
 COLUMNS=1
-select action in "ShowGroups" "ShowSubfields" "EditGroup" "AddGroup" "AddField" "Remove" "Edit" "Save" "Exit"
+select action in "ShowGroups" "EditGroup" "AddGroup" "ShowSubfields" "AddField" "Remove" "Edit" "Save" "Exit"
 do
   case $action in
     ShowGroups)
       showFields $file_path
-      ;;
-    ShowSubfields)
-      showSubFields $file_path
       ;;
     EditGroup)
       editGroup $file_path
@@ -33,6 +30,9 @@ do
       read -p "Enter the name of the group: " group_name
       newGroup "$group_name" "tab" $file_path
       newGroup "$group_name" "group" $file_path
+      ;;
+    ShowSubfields)
+      showSubFields $file_path
       ;;
     AddField)
       addSubField $file_path

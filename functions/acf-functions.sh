@@ -73,7 +73,6 @@ function editGroup(){
     local slug=$(echo $group_name | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
     local slug_result=$(cat $file_path | jq '.[0].fields['${group_index}'].name = "'${slug}'"')
     echo $slug_result > $file_path
-    showFields $file_path
     wpImport
   done
 }
