@@ -8,8 +8,15 @@ then
   exit 1
 fi
 
-file_path=acf/page-home.json
-# file_path=$(fzf)
+# file_path=acf/page-home.json
+
+cd acf/
+
+json_file=$(fzf)
+
+file_path="acf/$json_file"
+
+cd ..
 
 if [[ "$file_path" != *"json"* ]]; then
   echo "${tmagenta}File is not json${treset}"

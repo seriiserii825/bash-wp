@@ -60,9 +60,13 @@ function editGroup(){
     [[ $elem ]] || continue
     local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
     local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
-    read -p "Enter the name of the group: " group_name
-    if [[ $group_name == '' ]]; then
-      group_name=$elem
+
+    read -p "Enter the name of the group: " group_input
+
+    if [[ $group_input == '' ]]; then
+      break
+    else
+      local group_name=$(echo $group_input | tr ' ' '_')
     fi
     local result=$(cat $file_path | jq '.[0].fields['${group_index}'].label = "'${group_name}'"')
     echo $result > $file_path
@@ -153,12 +157,13 @@ function addSubField(){
   COLUMNS=1
   select elem in "${labels[@]}"; do 
     [[ $elem ]] || continue
-    read -p "Enter the name of the field: " field_label
+    read -p "Enter the name of the field: " field_input
+    local field_label=$(echo $field_input | tr ' ' '_')
     local fiedl_name=$(echo $field_label | tr ' ' '_')
     local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
     local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
     echo "${tmagenta}Select the type of the field${treset}"
-    select type in "text" "image" "wysiwyg" "textarea" "gallery" "repeater"; do
+    select type in "text" "image" "wysiwyg" "textarea" "gallery" "repeater" "file"; do
       [[ $type ]] || continue
       break
     done
@@ -168,7 +173,7 @@ function addSubField(){
       [[ $width ]] || continue
       break
     done
-    if [[ $type == 'image' || $type == 'gallery' ]]; then
+    if [[ $type == 'image' || $type == 'gallery' || $type == 'file' ]]; then
       local result=$(cat $file_path | jq '.[0].fields['${group_index}'].sub_fields[.[0].fields['${group_index}'].sub_fields| length] += {
       "key": "'${id}'",
       "label": "'${field_label}'",
@@ -217,28 +222,28 @@ elif [[ $type == 'wysiwyg' ]]; then
 echo $result > $file_path
 elif [[ $type == 'repeater' ]]; then
   local result=$(cat $file_path | jq '.[0].fields['${group_index}'].sub_fields[.[0].fields['${group_index}'].sub_fields| length] += {
-    "key": "'${id}'",
-    "label": "'${field_label}'",
-    "name": "'${field_name}'",
-    "aria-label": "",
-    "type": "'${type}'",
-    "instructions": "",
-    "required": 0,
-    "conditional_logic": 0,
-    "wrapper": {
-      "width": "'${width}'",
-      "class": "",
-      "id": ""
-    },
-    "default_value": "",
-    "maxlength": "",
-    "placeholder": "",
-    "prepend": "",
-    "append": "",
-    "layout": "table",
-    "button_label": "Add Row",
-    "sub_fields": []
-  }')
+  "key": "'${id}'",
+  "label": "'${field_label}'",
+  "name": "'${field_name}'",
+  "aria-label": "",
+  "type": "'${type}'",
+  "instructions": "",
+  "required": 0,
+  "conditional_logic": 0,
+  "wrapper": {
+  "width": "'${width}'",
+  "class": "",
+  "id": ""
+},
+"default_value": "",
+"maxlength": "",
+"placeholder": "",
+"prepend": "",
+"append": "",
+"layout": "table",
+"button_label": "Add Row",
+"sub_fields": []
+}')
 echo $result > $file_path
 else
   local result=$(cat $file_path | jq '.[0].fields['${group_index}'].sub_fields[.[0].fields['${group_index}'].sub_fields| length] += {
@@ -262,10 +267,10 @@ else
 "append": ""
 }')
 echo $result > $file_path
-fi
-wpImport
-break
-done
+    fi
+    wpImport
+    break
+  done
 }
 
 function editSubField() {
@@ -288,9 +293,11 @@ function editSubField() {
     select field in "${sub_fields_labels[@]}"; do 
       [[ $field ]] || continue
       echo "${tmagenta}Leave empty if you don't want to change the name of the field${treset}"
-      read -p "Enter the name of the field: " field_label
-      if [[ $field_label == '' ]]; then
-        field_label=$field
+      read -p "Enter the name of the field: " field_input
+      if [[ $field_input == '' ]]; then
+        break
+      else
+        field_label=$(echo $field_input | tr ' ' '_')
       fi
       local field_name=$(echo $field_label | tr ' ' '_')
       local key_field=$(jq -r '.[0].fields['${group_index}'].sub_fields[] | select(.label == "'${field}'") | .key' $file_path)
