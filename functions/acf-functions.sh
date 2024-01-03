@@ -53,16 +53,7 @@ function showSubFields(){
 
 function editGroup(){
   local file_path=$1
-  local labels=()
-  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
-
-  for item in "${my_array[@]}"; do
-    local label=$(jq --raw-output '.label' <<< "$item")
-    local type=$(jq --raw-output '.type' <<< "$item")
-    if [ $type == "group" ]; then
-      labels+=($label)
-    fi
-  done
+  labels=($(getGroupsLabels $file_path))
 
   COLUMNS=1
   select elem in "${labels[@]}"; do 
@@ -132,24 +123,9 @@ echo $result > $file_path
   fi
 }
 
-function getLabels(){
-  local file_path=$1
-  local labels=()
-  # read each item in the JSON array to an item in the Bash array
-  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
-
-  # iterate through the Bash array
-  for item in "${my_array[@]}"; do
-    local label=$(jq --raw-output '.label' <<< "$item")
-    local type=$(jq --raw-output '.type' <<< "$item")
-    labels+=($label)
-  done
-  echo "${labels[@]}"
-}
-
 function removeGroup(){
   local file_path=$1
-  local labels=($(getLabels $file_path))
+  local labels=($(getGroupsLabels $file_path))
 
   COLUMNS=1
   select elem in "${labels[@]}"; do 
@@ -168,17 +144,9 @@ function removeGroup(){
 }
 
 function addSubField(){
+  local file_path=$1
   local id="field_$(openssl rand -base64 12)"
-  local labels=()
-  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
-
-  for item in "${my_array[@]}"; do
-    local label=$(jq --raw-output '.label' <<< "$item")
-    local type=$(jq --raw-output '.type' <<< "$item")
-    if [ $type == "group" ]; then
-      labels+=($label)
-    fi
-  done
+  local labels=($(getGroupsLabels $file_path))
   echo "${tblue}Select group:${treset}"
   COLUMNS=1
   select elem in "${labels[@]}"; do 
@@ -275,16 +243,7 @@ echo $result > $file_path
 
 function editSubField() {
   local file_path=$1
-  local labels=()
-  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
-
-  for item in "${my_array[@]}"; do
-    local label=$(jq --raw-output '.label' <<< "$item")
-    local type=$(jq --raw-output '.type' <<< "$item")
-    if [ $type == "group" ]; then
-      labels+=($label)
-    fi
-  done
+  local labels=($(getGroupsLabels $file_path))
   echo "${tblue}Select group:${treset}"
   COLUMNS=1
   select elem in "${labels[@]}"; do 
