@@ -158,7 +158,7 @@ function addSubField(){
     local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
     local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
     echo "${tmagenta}Select the type of the field${treset}"
-    select type in "text" "image" "wysiwyg" "textarea" "gallery"; do
+    select type in "text" "image" "wysiwyg" "textarea" "gallery" "repeater"; do
       [[ $type ]] || continue
       break
     done
@@ -214,6 +214,31 @@ elif [[ $type == 'wysiwyg' ]]; then
 "toolbar": "basic",
 "media_upload": 0
 }')
+echo $result > $file_path
+elif [[ $type == 'repeater' ]]; then
+  local result=$(cat $file_path | jq '.[0].fields['${group_index}'].sub_fields[.[0].fields['${group_index}'].sub_fields| length] += {
+    "key": "'${id}'",
+    "label": "'${field_label}'",
+    "name": "'${field_name}'",
+    "aria-label": "",
+    "type": "'${type}'",
+    "instructions": "",
+    "required": 0,
+    "conditional_logic": 0,
+    "wrapper": {
+      "width": "'${width}'",
+      "class": "",
+      "id": ""
+    },
+    "default_value": "",
+    "maxlength": "",
+    "placeholder": "",
+    "prepend": "",
+    "append": "",
+    "layout": "table",
+    "button_label": "Add Row",
+    "sub_fields": []
+  }')
 echo $result > $file_path
 else
   local result=$(cat $file_path | jq '.[0].fields['${group_index}'].sub_fields[.[0].fields['${group_index}'].sub_fields| length] += {
