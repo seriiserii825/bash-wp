@@ -45,7 +45,7 @@ do
       echo "Edit"
       ;;
     Save)
-      which wp
+      wpImport
       break
       ;;
     Exit)

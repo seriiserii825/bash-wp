@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function wpImport(){
+  wp acf clean
+  wp acf import --all
+}
+
 function showFields(){
   local file_path=$1
   # read each item in the JSON array to an item in the Bash array
@@ -59,7 +64,17 @@ function editGroup(){
     read -p "Enter the name of the group: " group_name
     local result=$(cat $file_path | jq '.[0].fields['${group_index}'].label = "'${group_name}'"')
     echo $result > $file_path
+
+    local key_tab=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "tab") | .key' $file_path)
+    local tab_index=$(jq '.[0].fields | map(.key) | index("'${key_tab}'")' $file_path)
+    local result_tab=$(cat $file_path | jq '.[0].fields['${tab_index}'].label = "'${group_name}'"')
+    echo $result_tab > $file_path
+
+    local slug=$(echo $group_name | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+    local slug_result=$(cat $file_path | jq '.[0].fields['${group_index}'].name = "'${slug}'"')
+    echo $slug_result > $file_path
     showFields $file_path
+    wpImport
   done
 }
 
@@ -179,4 +194,5 @@ function addSubField(){
 echo $result > $file_path
 done
 }
+
 
