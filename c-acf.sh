@@ -9,7 +9,6 @@ then
 fi
 
 file_path=acf/page-home.json
-getFilePath $file_path
 # file_path=$(fzf)
 
 if [[ "$file_path" != *"json"* ]]; then
@@ -18,41 +17,36 @@ if [[ "$file_path" != *"json"* ]]; then
 fi
 
 COLUMNS=1
-select action in "${tblue}ShowGroups${treset}" "${tblue}EditGroup${treset}" "${tblue}AddGroup${treset}" "${tgreen}ShowFields${treset}" "${tgreen}EditField${treset}" "${tgreen}AddField${treset}" "Remove" "Edit" "Save" "Exit"
+select action in "${tyellow}ShowGroups${treset}" "${tblue}EditGroup${treset}" "${tgreen}AddGroup${treset}" "${tmagenta}RemoveGroup${treset}"  "${tyellow}ShowFields${treset}" "${tblue}EditField${treset}" "${tgreen}AddField${treset}" "${tmagenta}RemoveField${treset}" "${tmagenta}Exit${treset}"
 do
   case $action in
-    "${tblue}ShowGroups${treset}")
+    "${tyellow}ShowGroups${treset}")
       showFields $file_path
       ;;
     "${tblue}EditGroup${treset}")
       editGroup $file_path
       ;;
-    "${tblue}AddGroup${treset}")
+    "${tgreen}AddGroup${treset}")
       read -p "Enter the name of the group: " group_name
       newGroup "$group_name" "tab" $file_path
       newGroup "$group_name" "group" $file_path
       ;;
-    "${tgreen}ShowFields${treset}")
+    "${tmagenta}RemoveGroup${treset}")
+      removeGroup $file_path
+      ;;
+    "${tyellow}ShowFields${treset}")
       showSubFields $file_path
+      ;;
+    "${tblue}EditField${treset}")
+      editSubField $file_path
       ;;
     "${tgreen}AddField${treset}")
       addSubField $file_path
       ;;
-    "${tgreen}EditField${treset}")
-      editSubField $file_path
+    "${tmagenta}RemoveField${treset}")
+      echo "remove field"
       ;;
-    Remove)
-      showFields $file_path
-      removeGroup $file_path
-      ;;
-    Edit)
-      echo "Edit"
-      ;;
-    Save)
-      wpImport
-      break
-      ;;
-    Exit)
+    "${tmagenta}Exit${treset}")
       echo "Exit"
       break
       ;;

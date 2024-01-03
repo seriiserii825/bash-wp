@@ -61,6 +61,9 @@ function editGroup(){
     local key_group=$(jq -r '.[0].fields[] | select(.label == "'${elem}'" and .type == "group") | .key' $file_path)
     local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
     read -p "Enter the name of the group: " group_name
+    if [[ $group_name == '' ]]; then
+      group_name=$elem
+    fi
     local result=$(cat $file_path | jq '.[0].fields['${group_index}'].label = "'${group_name}'"')
     echo $result > $file_path
 
@@ -121,6 +124,7 @@ elif [ $type == "group" ]; then
 }')
 echo $result > $file_path
   fi
+  wpImport
 }
 
 function removeGroup(){
@@ -136,11 +140,9 @@ function removeGroup(){
     echo $result_tab > $file_path
     local result_group=$(cat $file_path | jq 'del(.[0].fields[] | select(.key == "'${key_group}'"))')
     echo $result_group > $file_path
-    showFields $file_path
+    wpImport
+    break
   done
-  key=$1
-  file_path=$2
-  local result=$(cat $file_path | jq 'del(.[0].fields['${key}'])')
 }
 
 function addSubField(){
@@ -235,10 +237,10 @@ else
 "append": ""
 }')
 echo $result > $file_path
-    fi
-    wpImport
-    break
-  done
+fi
+wpImport
+break
+done
 }
 
 function editSubField() {
