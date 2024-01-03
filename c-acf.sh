@@ -2,28 +2,37 @@
 
 source /home/serii/Documents/bash-wp/functions/acf-functions.sh
 
-file_path=$(fzf)
+if [ ! -f "front-page.php" ]
+then
+  echo "${tmagenta}front-page.php not found, it's not a wordpress template${treset}"
+  exit 1
+fi
 
-select action in "Show" "Add" "Remove" "Edit" "Exit"
+file_path=acf/page-home.json
+# file_path=$(fzf)
+
+if [[ "$file_path" != *"json"* ]]; then
+  echo "${tmagenta}File is not json${treset}"
+  exit 1
+fi
+
+COLUMNS=1
+select action in "ShowGroups" "ShowSubfields" "AddGroup" "AddField" "Remove" "Edit" "Save" "Exit"
 do
   case $action in
-    Show)
+    ShowGroups)
       showFields $file_path
       ;;
-    Add)
-      select type in "Group" "Field"
-      do
-        case $type in
-          Group)
-            read -p "Enter the name of the group: " group_name
-            newGroup "$group_name" "tab" $file_path
-            newGroup "$group_name" "group" $file_path
-            ;;
-          Field)
-            addSubField $file_path
-            ;;
-        esac
-      done
+    ShowSubfields)
+      showSubFields $file_path
+      ;;
+    AddGroup)
+      read -p "Enter the name of the group: " group_name
+      newGroup "$group_name" "tab" $file_path
+      newGroup "$group_name" "group" $file_path
+      ;;
+    AddField)
+      addSubField $file_path
       ;;
     Remove)
       showFields $file_path
@@ -31,6 +40,10 @@ do
       ;;
     Edit)
       echo "Edit"
+      ;;
+    Save)
+      wp acf import --all
+      break
       ;;
     Exit)
       echo "Exit"

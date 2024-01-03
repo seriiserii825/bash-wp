@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 function showFields(){
   local file_path=$1
@@ -6,11 +6,35 @@ function showFields(){
   readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
 
   for item in "${my_array[@]}"; do
-    echo "------------------------------------"
     local label=$(jq --raw-output '.label' <<< "$item")
     local type=$(jq --raw-output '.type' <<< "$item")
-    echo "$type: $label"
-    echo "====================================="
+    if [ $type == "group" ]; then
+      echo "$label"
+    fi
+  done
+}
+
+function showSubFields(){
+  local file_path=$1
+  # read each item in the JSON array to an item in the Bash array
+  readarray -t my_array < <(jq --compact-output '.[0].fields[]' $file_path)
+
+  for item in "${my_array[@]}"; do
+    local label=$(jq --raw-output '.label' <<< "$item")
+    local type=$(jq --raw-output '.type' <<< "$item")
+
+    if [ $type == "group" ]; then
+      local key_group=$(jq -r '.[0].fields[] | select(.label == "'${label}'" and .type == "group") | .key' $file_path)
+      local group_index=$(jq '.[0].fields | map(.key) | index("'${key_group}'")' $file_path)
+      readarray -t sub_fields < <(jq --compact-output '.[0].fields['${group_index}'].sub_fields[]' $file_path)
+
+      echo "${tblue}$label${treset}"
+      for item in "${sub_fields[@]}"; do
+        local sub_label=$(jq --raw-output '.label' <<< "$item")
+        local sub_type=$(jq --raw-output '.type' <<< "$item")
+        echo "${tgreen}$sub_label: $sub_type${treset}"
+      done
+    fi
   done
 }
 
@@ -117,15 +141,15 @@ function addSubField(){
     "required": 0,
     "conditional_logic": 0,
     "wrapper": {
-      "width": "",
-      "class": "",
-      "id": ""
-    },
-    "default_value": "",
-    "maxlength": "",
-    "placeholder": "",
-    "prepend": "",
-    "append": ""
+    "width": "",
+    "class": "",
+    "id": ""
+  },
+  "default_value": "",
+  "maxlength": "",
+  "placeholder": "",
+  "prepend": "",
+  "append": ""
 }')
 echo $result > $file_path
 done
