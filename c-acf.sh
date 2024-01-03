@@ -9,6 +9,7 @@ then
 fi
 
 file_path=acf/page-home.json
+getFilePath $file_path
 # file_path=$(fzf)
 
 if [[ "$file_path" != *"json"* ]]; then
@@ -17,25 +18,28 @@ if [[ "$file_path" != *"json"* ]]; then
 fi
 
 COLUMNS=1
-select action in "ShowGroups" "EditGroup" "AddGroup" "ShowSubfields" "AddField" "Remove" "Edit" "Save" "Exit"
+select action in "${tblue}ShowGroups${treset}" "${tblue}EditGroup${treset}" "${tblue}AddGroup${treset}" "${tgreen}ShowFields${treset}" "${tgreen}EditField${treset}" "${tgreen}AddField${treset}" "Remove" "Edit" "Save" "Exit"
 do
   case $action in
-    ShowGroups)
+    "${tblue}ShowGroups${treset}")
       showFields $file_path
       ;;
-    EditGroup)
+    "${tblue}EditGroup${treset}")
       editGroup $file_path
       ;;
-    AddGroup)
+    "${tblue}AddGroup${treset}")
       read -p "Enter the name of the group: " group_name
       newGroup "$group_name" "tab" $file_path
       newGroup "$group_name" "group" $file_path
       ;;
-    ShowSubfields)
+    "${tgreen}ShowFields${treset}")
       showSubFields $file_path
       ;;
-    AddField)
+    "${tgreen}AddField${treset}")
       addSubField $file_path
+      ;;
+    "${tgreen}EditField${treset}")
+      editSubField $file_path
       ;;
     Remove)
       showFields $file_path

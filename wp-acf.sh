@@ -30,6 +30,7 @@ echo "$(pwd)"
 if [[ ! -f .localwp-cli.yml ]]
 then
   rm wp-cli.local*
+  echo "${tblue}need to enter mysql code from clipboard${treset}"
   curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli-localwp-setup  && bash wpcli-localwp-setup && rm -rf ./wpcli-localwp-setup
 fi
 
