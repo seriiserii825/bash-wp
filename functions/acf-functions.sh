@@ -5,6 +5,12 @@ function wpImport(){
   wp acf import --all
 }
 
+
+function wpExport(){
+  rm -rf acf
+  wp acf export --all
+}
+
 function getGroupsLabels(){
   local file_path=$1
   local labels=()

@@ -39,7 +39,7 @@ if [[ "$file_path" != *"json"* ]]; then
 fi
 
 COLUMNS=1
-select action in "${tgreen}AddGroup${treset}" "${tblue}EditGroup${treset}" "${tyellow}ShowGroups${treset}" "${tmagenta}RemoveGroup${treset}" "${tgreen}AddField${treset}" "${tblue}EditField${treset}" "${tyellow}ShowFields${treset}" "${tmagenta}RemoveField${treset}" "${tmagenta}Exit${treset}"
+select action in "${tgreen}AddGroup${treset}" "${tgreen}AddField${treset}" "${tblue}EditGroup${treset}" "${tblue}EditField${treset}" "${tyellow}ShowGroups${treset}" "${tyellow}ShowFields${treset}" "${tmagenta}RemoveGroup${treset}" "${tmagenta}RemoveField${treset}" "${tmagenta}Exit${treset}"
 do
   case $action in
     "${tgreen}AddGroup${treset}")
