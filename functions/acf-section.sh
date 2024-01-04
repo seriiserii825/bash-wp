@@ -1,6 +1,42 @@
 source /home/serii/Documents/bash-wp/functions/acf-functions.sh
 
+function selectPage(){
+  local pages_json=$(wp post list --post_type=page --format=json)
+  local pages=($(echo $pages_json | jq -r '.[] | .post_title'))
+  local pages_slug=($(echo $pages_json | jq -r '.[] | .post_name'))
+  local pages_ids=($(echo $pages_json | jq -r '.[] | .ID'))
+  select page in "${pages_slug[@]}"; do
+    [[ $page ]] || continue
+    local page_id=$(echo $pages_json | jq -r '.[] | select(.post_name == "'${page}'") | .ID')
+    echo "{
+    \"param\": \"page\",
+    \"operator\": \"==\",
+    \"value\": \"${page_id}\"
+    }"
+  break
+done
+}
+
+function chooseType(){
+  select type in "page" "post_type" "taxonomy"; do
+    [[ $type ]] || continue
+    case $type in
+      "page")
+        selectPage
+        break
+        ;;
+      "post_type")
+        echo "some"
+        break
+        ;;
+    esac
+    break
+  done
+}
+
 function newSection(){
+  local setting=$(chooseType)
+
   local id="$(openssl rand -base64 12)"
   local tab_id="$(openssl rand -base64 12)"
   local group_id="$(openssl rand -base64 12)"
@@ -26,10 +62,10 @@ function newSection(){
                     "width": "",
                     "class": "",
                     "id": ""
-                },
+                  },
                 "placement": "top",
                 "endpoint": 0
-            },
+              },
             {
                 "key": "field_${group_id}",
                 "label": "Test",
@@ -43,18 +79,14 @@ function newSection(){
                     "width": "",
                     "class": "",
                     "id": ""
-                },
+                  },
                 "layout": "block",
                 "sub_fields": []
-            }
+              }
         ],
         "location": [
             [
-                {
-                    "param": "post_type",
-                    "operator": "==",
-                    "value": "post"
-                }
+                ${setting}
             ]
         ],
         "menu_order": 0,
@@ -67,7 +99,7 @@ function newSection(){
         "description": "",
         "show_in_rest": 0,
         "_valid": true
-    }
+      }
 ]
 TEST
 wpImport

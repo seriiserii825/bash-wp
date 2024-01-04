@@ -11,15 +11,15 @@ then
 fi
 
 # file_path=acf/page-home.json
-select action in "New section" "Exit"
+select action in "New section" "Continue"
 do
   case $action in
     "New section")
       newSection
       break
       ;;
-    "Exit")
-      echo "Exit"
+    "Continue")
+      echo "Continue"
       break
       ;;
   esac
