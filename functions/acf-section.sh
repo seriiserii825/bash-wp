@@ -17,6 +17,20 @@ function selectPage(){
 done
 }
 
+function selectPostType(){
+ local post_types_json=$(wp post-type list --publicly_queryable=1 --fields=name --format=json)
+ local names=($(echo $post_types_json | jq -r '.[] | .name'))
+ select name in "${names[@]}"; do
+   [[ $name ]] || continue
+   echo "{
+   \"param\": \"post_type\",
+   \"operator\": \"==\",
+   \"value\": \"${name}\"
+   }"
+  break
+done
+}
+
 function chooseType(){
   select type in "page" "post_type" "taxonomy"; do
     [[ $type ]] || continue
@@ -26,7 +40,7 @@ function chooseType(){
         break
         ;;
       "post_type")
-        echo "some"
+        selectPostType
         break
         ;;
     esac
@@ -41,7 +55,7 @@ function newSection(){
   local tab_id="$(openssl rand -base64 12)"
   local group_id="$(openssl rand -base64 12)"
   read -p "Enter the name of the section: " section_input
-  local slug=$(echo $section_input | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+  local slug=$(echo $section_input | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
   cat <<TEST >> "acf/$slug.json"
 [
     {
