@@ -217,8 +217,9 @@ function editSubField() {
         echo $width_result > $file_path
         break
       done
+      wpImport
+      break
     done
-    wpImport
   done
 }
 
