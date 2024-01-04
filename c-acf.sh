@@ -2,6 +2,7 @@
 
 source /home/serii/Documents/bash-wp/functions/acf-group.sh
 source /home/serii/Documents/bash-wp/functions/acf-fields.sh
+source /home/serii/Documents/bash-wp/functions/acf-section.sh
 
 if [ ! -f "front-page.php" ]
 then
@@ -10,6 +11,19 @@ then
 fi
 
 # file_path=acf/page-home.json
+select action in "New section" "Exit"
+do
+  case $action in
+    "New section")
+      newSection
+      break
+      ;;
+    "Exit")
+      echo "Exit"
+      break
+      ;;
+  esac
+done
 
 cd acf/
 
