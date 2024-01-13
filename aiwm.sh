@@ -2,10 +2,29 @@
 
 # check if don't exists file front-page.php
 if [ ! -f "front-page.php" ]; then
-    echo "File front-page.php not found!"
-    exit 1
+  echo "File front-page.php not found!"
+  exit 1
 fi 
 
+function listBackup(){
+  wp ai1wm list-backups
+}
+
+function restoreBackup(){
+  listBackup
+
+  cd ../../ai1wm-backups
+
+  backup_files=$(ls -t | grep '\.wpress')
+
+  PS3='Please enter your choice: '
+  select backup_file in $backup_files
+  do
+    wp ai1wm restore $backup_file
+    wp rewrite flush
+    exit 0
+  done
+}
 
 function makeBackup(){
   cd ../../ai1wm-backups
@@ -16,7 +35,6 @@ function makeBackup(){
   last_file=$(ls -t | head -n1)
   cp $last_file /home/serii/Downloads
   echo "${tgreen}Backup created!${treset}"
-  exit 0
 }
 
 function downloadBackup(){
@@ -35,13 +53,15 @@ function downloadBackup(){
   cd ../../ai1wm-backups
   wget "$domain_url/wp-content/ai1wm-backups/$backup_file"
   wp ai1wm restore $backup_file
-  exit 0
+  wp rewrite flush
 }
 
-select choice in "Make Backup" "Download Backup" "Exit"; do
+select choice in  "List" "Make Backup" "Download Backup" "Restore Backup" "Exit"; do
   case $choice in
+    "List" ) listBackup;;
     "Make Backup" ) makeBackup;;
     "Download Backup" ) downloadBackup;;
+    "Restore Backup" ) restoreBackup;;
     "Exit" ) exit;;
   esac
 done
