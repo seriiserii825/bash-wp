@@ -12,22 +12,26 @@ if [[ ! -f front-page.php ]]; then
   exit 1
 fi
 
+clipboard=$(xclip -o -selection clipboard)
+# echo $clipboard
+if [[ "$clipboard" != *"mysqld"* ]]; then
+  echo "${tmagenta}Go to localwp database and copy socket path!${treset}"
+  exit 1
+fi
+
 theme_url=$(pwd)
 
 if [[ ! -f .mysql_sock ]]
 then
-  echo "${tmagenta}Go to localwp app in tab Database and copy the socket path${treset}"
-  echo "${tgreen}Create a file .mysql_sock and paste the path${treset}"
-  exit 1
+  touch .mysql_sock
+  echo "$clipboard" > .mysql_sock
+else
+  echo "$clipboard" > .mysql_sock
 fi
-
-cat .mysql_sock | xclip -selection clipboard
 
 cd ../../../../../
 
-echo "$(pwd)"
-
-if [[ ! -f .localwp-cli.yml ]]
+if [[ ! -f wp-cli.local.yml ]]
 then
   rm wp-cli.local*
   echo "${tblue}need to enter mysql code from clipboard${treset}"
@@ -68,10 +72,8 @@ fi
 
 wp acf
 if [ $? -eq 0 ]; then
-    echo OK
+  echo OK
 else
-  read -p "${tmagenta}Get mysql sock path from localwp app and paste here: ${treset}" mysql_sock
-  echo $mysql_sock > "$theme_url/.mysql_sock"
-  echo "${tgreen}Success!${treset}"
+  echo "Has an error"
 fi
 

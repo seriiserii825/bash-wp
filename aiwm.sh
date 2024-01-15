@@ -2,7 +2,7 @@
 
 # check if don't exists file front-page.php
 if [ ! -f "front-page.php" ]; then
-  echo "File front-page.php not found!"
+  echo "${tmagenta}File front-page.php not found!${treset}"
   exit 1
 fi 
 
