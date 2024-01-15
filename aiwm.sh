@@ -6,6 +6,18 @@ if [ ! -f "front-page.php" ]; then
   exit 1
 fi 
 
+if ! wp plugin is-installed all-in-one-wp-migration; then
+  echo "${tmagenta}Plugin All-in-One WP Migration not found!${treset}"
+  wp plugin install ~/Documents/plugins-wp/all-in-one-wp-migration-7-79.zip --activate
+  echo "${tgreen}Plugin All-in-One WP Migration installed!${treset}"
+fi
+
+if ! wp plugin is-installed all-in-one-wp-migration-unlimited-extension; then
+  echo "${tmagenta}Plugin All-in-One WP Migration not found!${treset}"
+  wp plugin install ~/Documents/plugins-wp/unlimited/all-in-one-wp-migration-unlimited-extension-2.51.zip --activate
+  echo "${tgreen}Plugin All-in-One WP Migration unlimited installed!${treset}"
+fi
+
 function listBackup(){
   wp ai1wm list-backups
 }
@@ -43,6 +55,10 @@ function downloadBackup(){
     echo "Domain url is empty!"
     exit 1
   fi
+
+  # get domain name from domain url
+  domain_1=$(echo $domain_url | cut -d'/' -f1)
+  domain_url=$(echo $domain_url | cut -d'/' -f3 | cut -d':' -f1)
 
   read -p "Enter backup file name: " backup_file
   if [ -z "$backup_file" ]; then
