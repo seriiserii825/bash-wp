@@ -30,12 +30,24 @@ function restoreBackup(){
   backup_files=$(ls -t | grep '\.wpress')
 
   PS3='Please enter your choice: '
+  COLUMNS=1
   select backup_file in $backup_files
   do
     wp ai1wm restore $backup_file
     wp rewrite flush
     exit 0
   done
+}
+
+function restoreBackupFromDownloads(){
+  current_path=$(pwd)
+  cd ../../ai1wm-backups
+  backup_path=$(pwd)
+  cd ~/Downloads
+  file=$(fzf)
+  cp $file $backup_path
+  cd $current_path
+  restoreBackup
 }
 
 function makeBackup(){
@@ -72,11 +84,13 @@ function downloadBackup(){
   wp rewrite flush
 }
 
-select choice in  "List" "Make Backup" "Download Backup" "Restore Backup" "Exit"; do
+COLUMNS=1
+select choice in  "List" "Make Backup" "Download Backup" "Restore from Downloads" "Restore Backup" "Exit"; do
   case $choice in
     "List" ) listBackup;;
     "Make Backup" ) makeBackup;;
     "Download Backup" ) downloadBackup;;
+    "Restore from Downloads" ) restoreBackupFromDownloads;; 
     "Restore Backup" ) restoreBackup;;
     "Exit" ) exit;;
   esac
