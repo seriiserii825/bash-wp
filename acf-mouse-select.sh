@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/Documents/bash-scripts/extract-text-from-image.sh
+
 read -p "Enter the name of the ACF field group: " field_group_name
 
 acf_path=~/Downloads/acf.txt
