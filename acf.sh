@@ -1,14 +1,12 @@
 #!/bin/bash
-
-read -p "Enter the name of the ACF field group: " field_group_name
-
 acf_path=~/Downloads/acf.txt
 output_path=~/Downloads/output.txt
 touch $acf_path
 touch $output_path
-
-
 echo "$(xclip -o -selection clipboard)" > $acf_path
+
+read -p "Enter the name of the ACF field group: " field_group_name
+
 
 bat $acf_path
 
